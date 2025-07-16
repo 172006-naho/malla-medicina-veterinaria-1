@@ -44,4 +44,122 @@
       opacity: 0.5;
       pointer-events: none;
     }
-    .bl
+    .bloqueado .tooltip {
+      visibility: hidden;
+    }
+    .curso:hover .tooltip {
+      visibility: visible;
+    }
+    .tooltip {
+      visibility: hidden;
+      background-color: #222;
+      color: #fff;
+      text-align: left;
+      border-radius: 6px;
+      padding: 5px 8px;
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      white-space: nowrap;
+      margin-left: 10px;
+      font-size: 0.9em;
+    }
+    .boton-reinicio {
+      display: block;
+      margin: 30px auto 10px;
+      background-color: #c8e1f5;
+      color: #2c79c1;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .boton-reinicio:hover {
+      background-color: #a8d1ef;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐾 Malla Curricular Medicina Veterinaria UCSM 🐾</h1>
+  <div id="malla"></div>
+  <button class="boton-reinicio" onclick="reiniciarProgreso()">🔁 Reiniciar Progreso</button>
+  <script>
+    const cursos = [
+      { nombre: "Anatomía comparada", ciclo: 1 },
+      { nombre: "Anatomía II", ciclo: 2, requisitos: ["Anatomía comparada"] },
+      { nombre: "Bioquímica", ciclo: 2 },
+      { nombre: "Fisiología animal I", ciclo: 3, requisitos: ["Anatomía II"] },
+      { nombre: "Fisiología animal II", ciclo: 4, requisitos: ["Fisiología animal I"] },
+      { nombre: "Diagnóstico clínico I", ciclo: 4, requisitos: ["Fisiología animal I"] },
+      { nombre: "Diagnóstico clínico II", ciclo: 5, requisitos: ["Diagnóstico clínico I"] },
+      { nombre: "Imagenología", ciclo: 6, requisitos: ["Diagnóstico clínico II"] },
+      { nombre: "Clínica médica de pequeños animales", ciclo: 7, requisitos: ["Diagnóstico clínico I"] },
+      { nombre: "Clínica quirúrgica de pequeños animales", ciclo: 8, requisitos: ["Clínica médica de pequeños animales"] },
+      { nombre: "Cirugía de animales mayores", ciclo: 9, requisitos: ["Clínica quirúrgica de pequeños animales"] },
+      { nombre: "Clínica de bovinos", ciclo: 9 },
+      { nombre: "Producción de bovinos", ciclo: 10, requisitos: ["Clínica de bovinos"] },
+      { nombre: "Diseño del trabajo de investigación de ciencias veterinarias", ciclo: 8 },
+      { nombre: "Taller de tesis en ciencias veterinarias", ciclo: 10, requisitos: ["Diseño del trabajo de investigación de ciencias veterinarias"] }
+    ];
+
+    const estado = JSON.parse(localStorage.getItem("progresoVeterinaria") || "{}");
+
+    function guardarEstado() {
+      localStorage.setItem("progresoVeterinaria", JSON.stringify(estado));
+    }
+
+    function reiniciarProgreso() {
+      localStorage.removeItem("progresoVeterinaria");
+      location.reload();
+    }
+
+    function crearMalla() {
+      const contenedor = document.getElementById("malla");
+      for (let i = 1; i <= 10; i++) {
+        const bloque = document.createElement("div");
+        bloque.className = "ciclo";
+        bloque.innerHTML = `<h2>${i}º Semestre</h2>`;
+        const cursosCiclo = cursos.filter(c => c.ciclo === i);
+        cursosCiclo.forEach(curso => {
+          const divCurso = document.createElement("div");
+          divCurso.className = "curso";
+
+          let requisitosCumplidos = true;
+          let tooltipText = "";
+
+          if (curso.requisitos) {
+            for (const req of curso.requisitos) {
+              if (!estado[req]) {
+                requisitosCumplidos = false;
+                tooltipText += `Falta: ${req}\n`;
+              }
+            }
+          }
+
+          if (!requisitosCumplidos) divCurso.classList.add("bloqueado");
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.disabled = !requisitosCumplidos;
+          checkbox.checked = estado[curso.nombre] || false;
+
+          checkbox.addEventListener("change", () => {
+            estado[curso.nombre] = checkbox.checked;
+            guardarEstado();
+            location.reload();
+          });
+
+          divCurso.appendChild(checkbox);
+          const label = document.createElement("label");
+          label.textContent = curso.nombre;
+          divCurso.appendChild(label);
+
+          if (!requisitosCumplidos) {
+            const tooltip = document.createElement("span");
+            tooltip.className = "tooltip";
+            tooltip.textContent = tooltipText.trim();
+            divCurso.appendChild(tool
