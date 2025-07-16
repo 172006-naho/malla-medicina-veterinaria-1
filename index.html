@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malla Curricular Veterinaria UCSM</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-color: #e6f2ff;
+      color: #003366;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #0059b3;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .semestre {
+      background-color: #cce0ff;
+      border: 2px solid #99c2ff;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .curso {
+      background-color: #ffffff;
+      border: 1px solid #99ccff;
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 8px;
+      position: relative;
+      cursor: pointer;
+    }
+    .curso.bloqueado {
+      background-color: #f2f2f2;
+      color: #999;
+      pointer-events: none;
+      position: relative;
+    }
+    .curso.bloqueado::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #0066cc;
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 12px;
+      white-space: nowrap;
+      display: none;
+    }
+    .curso.bloqueado:hover::after {
+      display: block;
+    }
+    .curso.aprobado {
+      background-color: #99ffcc;
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular Medicina Veterinaria UCSM</h1>
+  <div class="grid" id="malla"></div>
+
+  <script>
+    const cursos = [
+      { nombre: "Química biológica", ciclo: 1 },
+      { nombre: "Anatomía comparada", ciclo: 1 },
+      { nombre: "Embriología e histología veterinarias", ciclo: 1 },
+      { nombre: "Taller de deportes", ciclo: 1 },
+      { nombre: "Taller de gestión de entornos virtuales", ciclo: 1 },
+      { nombre: "Taller de lectura y redacción", ciclo: 1 },
+      { nombre: "Anatomía II", ciclo: 2, requisitos: ["Anatomía comparada"] },
+      { nombre: "Bioquímica", ciclo: 2 },
+      { nombre: "Genética animal", ciclo: 2 },
+      { nombre: "Identidad y peruanidad", ciclo: 2 },
+      { nombre: "Taller de argumentación", ciclo: 2 },
+      { nombre: "Taller de artes", ciclo: 2 },
+      { nombre: "Zootecnia general", ciclo: 2 },
+      // Agrega más cursos aquí
