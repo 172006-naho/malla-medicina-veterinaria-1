@@ -3,83 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Malla Curricular Veterinaria UCSM</title>
+  <title>Malla Curricular MVZ UCSM</title>
   <style>
     body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background-color: #e6f2ff;
-      color: #003366;
+      margin: 0;
       padding: 20px;
     }
     h1 {
       text-align: center;
-      color: #0059b3;
+      color: #336699;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
+    .year {
+      margin-bottom: 40px;
     }
-    .semestre {
-      background-color: #cce0ff;
-      border: 2px solid #99c2ff;
-      padding: 10px;
-      border-radius: 10px;
+    .semester {
+      margin-bottom: 20px;
     }
-    .curso {
-      background-color: #ffffff;
+    .semester h3 {
+      color: #336699;
+    }
+    .course {
+      background: #ffffff;
       border: 1px solid #99ccff;
+      border-radius: 10px;
+      padding: 10px;
       margin: 5px 0;
-      padding: 5px;
-      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s ease;
+    }
+    .course.locked {
+      background: #d9eafa;
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .course input[type="checkbox"] {
+      transform: scale(1.2);
+    }
+    .tooltip {
       position: relative;
       cursor: pointer;
     }
-    .curso.bloqueado {
-      background-color: #f2f2f2;
-      color: #999;
-      pointer-events: none;
-      position: relative;
-    }
-    .curso.bloqueado::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: #0066cc;
-      color: white;
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: #336699;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
       padding: 5px;
-      border-radius: 5px;
-      font-size: 12px;
-      white-space: nowrap;
-      display: none;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-    .curso.bloqueado:hover::after {
-      display: block;
-    }
-    .curso.aprobado {
-      background-color: #99ffcc;
-      text-decoration: line-through;
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <h1>Malla Curricular Medicina Veterinaria UCSM</h1>
-  <div class="grid" id="malla"></div>
-
+  <div id="curriculum"></div>
   <script>
-    const cursos = [
-      { nombre: "Química biológica", ciclo: 1 },
-      { nombre: "Anatomía comparada", ciclo: 1 },
-      { nombre: "Embriología e histología veterinarias", ciclo: 1 },
-      { nombre: "Taller de deportes", ciclo: 1 },
-      { nombre: "Taller de gestión de entornos virtuales", ciclo: 1 },
-      { nombre: "Taller de lectura y redacción", ciclo: 1 },
-      { nombre: "Anatomía II", ciclo: 2, requisitos: ["Anatomía comparada"] },
-      { nombre: "Bioquímica", ciclo: 2 },
-      { nombre: "Genética animal", ciclo: 2 },
-      { nombre: "Identidad y peruanidad", ciclo: 2 },
-      { nombre: "Taller de argumentación", ciclo: 2 },
-      { nombre: "Taller de artes", ciclo: 2 },
-      { nombre: "Zootecnia general", ciclo: 2 },
-      // Agrega más cursos aquí
+    const data = {
+      "Primer Año": {
+        "1 semestre": [
+          { name: "Química biológica" },
+          { name: "Anatomía comparada" },
+          { name: "Embriología e histología veterinarias" },
+          { name: "Taller de deportes" },
+          { name: "Taller de gestión de entornos virtuales" },
+          { name: "Taller de lectura y redacción" }
+        ],
+        "2 semestres": [
+          { name: "Anatomía II", prereq: ["Anatomía comparada"] },
+          { name: "Bioquímica" },
+          { name: "Genética animal" },
+          { name: "Identidad y peruanidad" },
+          { name: "Taller de argumentación" },
+          { name: "Taller de artes" },
+          { name: "Zootecnia general" }
+        ]
+      },
+      // ... continuar con Tercer, Cuarto, Quinto año
+    };
+
+    const container = document.getElementById("curriculum");
+    const state = JSON.parse(localStorage.getItem("mvz_progress")) || {};
+
+    function isApproved(name) {
+      return state[name];
+    }
+
+    function createCourseElement(course) {
+      const div = document.createElement("div");
+      div.classList.add("course");
+      if (course.prereq && !course.prereq.every(p => isApproved(p))) {
+        div.classList.add("locked");
+        const span = document.createElement("span");
+        span.classList.add("tooltip");
+        span.textContent = course.name;
+        const tooltip = document.createElement("span");
+        tooltip.classList.add("tooltiptext");
+        tooltip.textContent = "Requiere: " + course.prereq.join(", ");
+        span.appendChild(tooltip);
+        div.appendChild(span);
+        return div;
+      }
+
+      const label = document.createElement("label");
+      label.textContent = course.name;
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = isApproved(course.name);
+      checkbox.addEventListener("change", () => {
+        state[course.name] = checkbox.checked;
+        localStorage.setItem("mvz_progress", JSON.stringify(state));
+        location.reload();
+      });
+      div.appendChild(label);
+      div.appendChild(checkbox);
+      return div;
+    }
+
+    Object.entries(data).forEach(([year, semesters]) => {
+      const yearDiv = document.createElement("div");
+      yearDiv.classList.add("year");
+      const h2 = document.createElement("h2");
+      h2.textContent = year;
+      yearDiv.appendChild(h2);
+      Object.entries(semesters).forEach(([sem, courses]) => {
+        const semDiv = document.createElement("div");
+        semDiv.classList.add("semester");
+        const h3 = document.createElement("h3");
+        h3.textContent = sem;
+        semDiv.appendChild(h3);
+        courses.forEach(course => {
+          semDiv.appendChild(createCourseElement(course));
+        });
+        yearDiv.appendChild(semDiv);
+      });
+      container.appendChild(yearDiv);
+    });
+  </script>
+</body>
+</html>
