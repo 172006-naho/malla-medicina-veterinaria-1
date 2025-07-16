@@ -16,6 +16,7 @@
       text-align: center;
       font-family: 'Brush Script MT', cursive;
       color: #2c79c1;
+      margin-bottom: 30px;
     }
     .ciclo {
       border: 2px solid #a8c9e5;
@@ -28,11 +29,13 @@
     .ciclo h2 {
       color: #2566a3;
       font-family: 'Georgia', serif;
+      margin-bottom: 10px;
     }
     .curso {
       display: flex;
       align-items: center;
       margin: 5px 0;
+      position: relative;
     }
     .curso input[type="checkbox"] {
       margin-right: 10px;
@@ -40,23 +43,28 @@
     .bloqueado {
       opacity: 0.5;
       pointer-events: none;
-      position: relative;
+    }
+    .bloqueado .tooltip {
+      visibility: hidden;
+    }
+    .curso:hover .tooltip {
+      visibility: visible;
     }
     .tooltip {
       visibility: hidden;
       background-color: #222;
       color: #fff;
-      text-align: center;
-      border-radius: 5px;
-      padding: 5px;
+      text-align: left;
+      border-radius: 6px;
+      padding: 5px 8px;
       position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
       z-index: 1;
-      top: -5px;
-      left: 105%;
       white-space: nowrap;
-    }
-    .bloqueado:hover .tooltip {
-      visibility: visible;
+      margin-left: 10px;
+      font-size: 0.9em;
     }
   </style>
 </head>
@@ -65,96 +73,11 @@
   <div id="malla"></div>
   <script>
     const cursos = [
+      // CBC y 1er año
       { nombre: "Química biológica", ciclo: 1 },
       { nombre: "Anatomía comparada", ciclo: 1 },
       { nombre: "Embriología e histología veterinarias", ciclo: 1 },
       { nombre: "Taller de deportes", ciclo: 1 },
       { nombre: "Taller de gestión de entornos virtuales", ciclo: 1 },
       { nombre: "Taller de lectura y redacción", ciclo: 1 },
-      { nombre: "Anatomía II", ciclo: 2, requisitos: ["Anatomía comparada"] },
-      { nombre: "Bioquímica", ciclo: 2 },
-      { nombre: "Genética animal", ciclo: 2 },
-      { nombre: "Identidad y peruanidad", ciclo: 2 },
-      { nombre: "Taller de argumentación", ciclo: 2 },
-      { nombre: "Taller de artes", ciclo: 2 },
-      { nombre: "Zootecnia general", ciclo: 2 },
-      { nombre: "Fisiología animal I", ciclo: 3, requisitos: ["Anatomía II"] },
-      { nombre: "Bioestadística", ciclo: 3 },
-      { nombre: "Biología celular y molecular", ciclo: 3, requisitos: ["Embriología e histología veterinarias"] },
-      { nombre: "Microbiología general", ciclo: 3, requisitos: ["Bioquímica"] },
-      { nombre: "Parasitología general", ciclo: 3 },
-      { nombre: "Taller de coaching y liderazgo", ciclo: 3 },
-      { nombre: "Taller de felicidad y bienestar", ciclo: 3 },
-      { nombre: "Fisiología animal II", ciclo: 4, requisitos: ["Fisiología animal I"] },
-      { nombre: "Farmacología y terapéutica I", ciclo: 4, requisitos: ["Bioquímica"] },
-      { nombre: "Diagnóstico clínico I", ciclo: 4, requisitos: ["Fisiología animal I"] },
-      { nombre: "Enfermedades parasitarias", ciclo: 4, requisitos: ["Parasitología general"] },
-      { nombre: "Método científico", ciclo: 4 },
-      { nombre: "Responsabilidad ciudadana y ecología", ciclo: 4 }
-      // Puedes seguir añadiendo los cursos desde el semestre 5 al 10 según tu estructura
-    ];
-
-    const estado = JSON.parse(localStorage.getItem("progresoVeterinaria") || "{}");
-
-    function guardarEstado() {
-      localStorage.setItem("progresoVeterinaria", JSON.stringify(estado));
-    }
-
-    function crearMalla() {
-      const contenedor = document.getElementById("malla");
-      for (let i = 1; i <= 10; i++) {
-        const bloque = document.createElement("div");
-        bloque.className = "ciclo";
-        bloque.innerHTML = `<h2>${i}º Semestre</h2>`;
-        const cursosCiclo = cursos.filter(c => c.ciclo === i);
-        cursosCiclo.forEach(curso => {
-          const divCurso = document.createElement("div");
-          divCurso.className = "curso";
-
-          let requisitosCumplidos = true;
-          let tooltipText = "";
-
-          if (curso.requisitos) {
-            for (const req of curso.requisitos) {
-              if (!estado[req]) {
-                requisitosCumplidos = false;
-                tooltipText += `Falta: ${req} \n`;
-              }
-            }
-          }
-
-          if (!requisitosCumplidos) divCurso.classList.add("bloqueado");
-
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.disabled = !requisitosCumplidos;
-          checkbox.checked = estado[curso.nombre] || false;
-
-          checkbox.addEventListener("change", () => {
-            estado[curso.nombre] = checkbox.checked;
-            guardarEstado();
-            location.reload();
-          });
-
-          divCurso.appendChild(checkbox);
-          const label = document.createElement("label");
-          label.textContent = curso.nombre;
-          divCurso.appendChild(label);
-
-          if (!requisitosCumplidos) {
-            const tooltip = document.createElement("span");
-            tooltip.className = "tooltip";
-            tooltip.textContent = tooltipText.trim();
-            divCurso.appendChild(tooltip);
-          }
-
-          bloque.appendChild(divCurso);
-        });
-        contenedor.appendChild(bloque);
-      }
-    }
-
-    crearMalla();
-  </script>
-</body>
-</html>
+      { nombre: "Anatomía II", ciclo: 2, requisitos: ["A
