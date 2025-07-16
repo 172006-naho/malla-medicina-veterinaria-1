@@ -3,156 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Malla Curricular MVZ UCSM</title>
+  <title>Malla Curricular Veterinaria UCSM</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #e6f2ff;
+      background: #e6f0fa;
+      color: #333;
       margin: 0;
       padding: 20px;
     }
     h1 {
       text-align: center;
-      color: #336699;
+      font-family: 'Brush Script MT', cursive;
+      color: #2c79c1;
     }
-    .year {
-      margin-bottom: 40px;
-    }
-    .semester {
+    .ciclo {
+      border: 2px solid #a8c9e5;
+      border-radius: 12px;
+      padding: 15px;
       margin-bottom: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .semester h3 {
-      color: #336699;
+    .ciclo h2 {
+      color: #2566a3;
+      font-family: 'Georgia', serif;
     }
-    .course {
-      background: #ffffff;
-      border: 1px solid #99ccff;
-      border-radius: 10px;
-      padding: 10px;
-      margin: 5px 0;
+    .curso {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      transition: background 0.3s ease;
+      margin: 5px 0;
     }
-    .course.locked {
-      background: #d9eafa;
-      opacity: 0.7;
-      cursor: not-allowed;
+    .curso input[type="checkbox"] {
+      margin-right: 10px;
     }
-    .course input[type="checkbox"] {
-      transform: scale(1.2);
+    .bloqueado {
+      opacity: 0.5;
+      pointer-events: none;
+      position: relative;
     }
     .tooltip {
-      position: relative;
-      cursor: pointer;
-    }
-    .tooltip .tooltiptext {
       visibility: hidden;
-      width: 200px;
-      background-color: #336699;
+      background-color: #222;
       color: #fff;
       text-align: center;
-      border-radius: 6px;
+      border-radius: 5px;
       padding: 5px;
       position: absolute;
       z-index: 1;
-      bottom: 125%;
-      left: 50%;
-      margin-left: -100px;
-      opacity: 0;
-      transition: opacity 0.3s;
+      top: -5px;
+      left: 105%;
+      white-space: nowrap;
     }
-    .tooltip:hover .tooltiptext {
+    .bloqueado:hover .tooltip {
       visibility: visible;
-      opacity: 1;
     }
   </style>
 </head>
 <body>
-  <h1>Malla Curricular Medicina Veterinaria UCSM</h1>
-  <div id="curriculum"></div>
+  <h1>🐾 Malla Curricular Medicina Veterinaria UCSM 🐾</h1>
+  <div id="malla"></div>
   <script>
-    const data = {
-      "Primer Año": {
-        "1 semestre": [
-          { name: "Química biológica" },
-          { name: "Anatomía comparada" },
-          { name: "Embriología e histología veterinarias" },
-          { name: "Taller de deportes" },
-          { name: "Taller de gestión de entornos virtuales" },
-          { name: "Taller de lectura y redacción" }
-        ],
-        "2 semestres": [
-          { name: "Anatomía II", prereq: ["Anatomía comparada"] },
-          { name: "Bioquímica" },
-          { name: "Genética animal" },
-          { name: "Identidad y peruanidad" },
-          { name: "Taller de argumentación" },
-          { name: "Taller de artes" },
-          { name: "Zootecnia general" }
-        ]
-      },
-      // ... continuar con Tercer, Cuarto, Quinto año
-    };
+    const cursos = [
+      { nombre: "Química biológica", ciclo: 1 },
+      { nombre: "Anatomía comparada", ciclo: 1 },
+      { nombre: "Embriología e histología veterinarias", ciclo: 1 },
+      { nombre: "Taller de deportes", ciclo: 1 },
+      { nombre: "Taller de gestión de entornos virtuales", ciclo: 1 },
+      { nombre: "Taller de lectura y redacción", ciclo: 1 },
+      { nombre: "Anatomía II", ciclo: 2, requisitos: ["Anatomía comparada"] },
+      { nombre: "Bioquímica", ciclo: 2 },
+      { nombre: "Genética animal", ciclo: 2 },
+      { nombre: "Identidad y peruanidad", ciclo: 2 },
+      { nombre: "Taller de argumentación", ciclo: 2 },
+      { nombre: "Taller de artes", ciclo: 2 },
+      { nombre: "Zootecnia general", ciclo: 2 },
+      { nombre: "Fisiología animal I", ciclo: 3, requisitos: ["Anatomía II"] },
+      { nombre: "Bioestadística", ciclo: 3 },
+      { nombre: "Biología celular y molecular", ciclo: 3, requisitos: ["Embriología e histología veterinarias"] },
+      { nombre: "Microbiología general", ciclo: 3, requisitos: ["Bioquímica"] },
+      { nombre: "Parasitología general", ciclo: 3 },
+      { nombre: "Taller de coaching y liderazgo", ciclo: 3 },
+      { nombre: "Taller de felicidad y bienestar", ciclo: 3 },
+      { nombre: "Fisiología animal II", ciclo: 4, requisitos: ["Fisiología animal I"] },
+      { nombre: "Farmacología y terapéutica I", ciclo: 4, requisitos: ["Bioquímica"] },
+      { nombre: "Diagnóstico clínico I", ciclo: 4, requisitos: ["Fisiología animal I"] },
+      { nombre: "Enfermedades parasitarias", ciclo: 4, requisitos: ["Parasitología general"] },
+      { nombre: "Método científico", ciclo: 4 },
+      { nombre: "Responsabilidad ciudadana y ecología", ciclo: 4 }
+      // Puedes seguir añadiendo los cursos desde el semestre 5 al 10 según tu estructura
+    ];
 
-    const container = document.getElementById("curriculum");
-    const state = JSON.parse(localStorage.getItem("mvz_progress")) || {};
+    const estado = JSON.parse(localStorage.getItem("progresoVeterinaria") || "{}");
 
-    function isApproved(name) {
-      return state[name];
+    function guardarEstado() {
+      localStorage.setItem("progresoVeterinaria", JSON.stringify(estado));
     }
 
-    function createCourseElement(course) {
-      const div = document.createElement("div");
-      div.classList.add("course");
-      if (course.prereq && !course.prereq.every(p => isApproved(p))) {
-        div.classList.add("locked");
-        const span = document.createElement("span");
-        span.classList.add("tooltip");
-        span.textContent = course.name;
-        const tooltip = document.createElement("span");
-        tooltip.classList.add("tooltiptext");
-        tooltip.textContent = "Requiere: " + course.prereq.join(", ");
-        span.appendChild(tooltip);
-        div.appendChild(span);
-        return div;
-      }
+    function crearMalla() {
+      const contenedor = document.getElementById("malla");
+      for (let i = 1; i <= 10; i++) {
+        const bloque = document.createElement("div");
+        bloque.className = "ciclo";
+        bloque.innerHTML = `<h2>${i}º Semestre</h2>`;
+        const cursosCiclo = cursos.filter(c => c.ciclo === i);
+        cursosCiclo.forEach(curso => {
+          const divCurso = document.createElement("div");
+          divCurso.className = "curso";
 
-      const label = document.createElement("label");
-      label.textContent = course.name;
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = isApproved(course.name);
-      checkbox.addEventListener("change", () => {
-        state[course.name] = checkbox.checked;
-        localStorage.setItem("mvz_progress", JSON.stringify(state));
-        location.reload();
-      });
-      div.appendChild(label);
-      div.appendChild(checkbox);
-      return div;
-    }
+          let requisitosCumplidos = true;
+          let tooltipText = "";
 
-    Object.entries(data).forEach(([year, semesters]) => {
-      const yearDiv = document.createElement("div");
-      yearDiv.classList.add("year");
-      const h2 = document.createElement("h2");
-      h2.textContent = year;
-      yearDiv.appendChild(h2);
-      Object.entries(semesters).forEach(([sem, courses]) => {
-        const semDiv = document.createElement("div");
-        semDiv.classList.add("semester");
-        const h3 = document.createElement("h3");
-        h3.textContent = sem;
-        semDiv.appendChild(h3);
-        courses.forEach(course => {
-          semDiv.appendChild(createCourseElement(course));
+          if (curso.requisitos) {
+            for (const req of curso.requisitos) {
+              if (!estado[req]) {
+                requisitosCumplidos = false;
+                tooltipText += `Falta: ${req} \n`;
+              }
+            }
+          }
+
+          if (!requisitosCumplidos) divCurso.classList.add("bloqueado");
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.disabled = !requisitosCumplidos;
+          checkbox.checked = estado[curso.nombre] || false;
+
+          checkbox.addEventListener("change", () => {
+            estado[curso.nombre] = checkbox.checked;
+            guardarEstado();
+            location.reload();
+          });
+
+          divCurso.appendChild(checkbox);
+          const label = document.createElement("label");
+          label.textContent = curso.nombre;
+          divCurso.appendChild(label);
+
+          if (!requisitosCumplidos) {
+            const tooltip = document.createElement("span");
+            tooltip.className = "tooltip";
+            tooltip.textContent = tooltipText.trim();
+            divCurso.appendChild(tooltip);
+          }
+
+          bloque.appendChild(divCurso);
         });
-        yearDiv.appendChild(semDiv);
-      });
-      container.appendChild(yearDiv);
-    });
+        contenedor.appendChild(bloque);
+      }
+    }
+
+    crearMalla();
   </script>
 </body>
 </html>
